@@ -1,0 +1,17 @@
+[ WARN:0@316.392] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:1@353.964] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:2@357.238] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:3@380.186] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:4@398.524] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:5@398.634] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:6@412.694] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+[ WARN:7@428.869] global net_impl_backend.cpp:345 setPreferableTarget Targets are not supported by the new graph engine for now
+13 shard tersedia untuk split test
+[test-00000-of-00013.parquet] 48 row group, kandidat: [('z-image-turbo', 557), ('flux.2-klein-9b', 397), ('imagenet', 210), ('gpt-image-1.5', 147), ('midjourney-7', 145), ('docci', 141), ('recraft-v3', 22), ('seedream-v5.0', 21), ('gpt-image-2', 11), ('nano-banana-pro', 10), ('ideogram-2.0', 8)]
+  8/48 row group | wajah tersimpan: 152 {'fake/flux.2-klein-9b': 58, 'fake/gpt-image-1.5': 12, 'fake/gpt-image-2': 1, 'fake/ideogram-2.0': 1, 'fake/midjourney-7': 18, 'fake/nano-banana-pro': 1, 'fake/recraft-v3': 2, 'fake/seedream-v5.0': 1, 'fake/z-image-turbo': 57, 'real/docci': 1}
+  16/48 row group | wajah tersimpan: 325 {'fake/flux.2-klein-9b': 118, 'fake/gpt-image-1.5': 28, 'fake/gpt-image-2': 3, 'fake/ideogram-2.0': 3, 'fake/midjourney-7': 34, 'fake/nano-banana-pro': 1, 'fake/recraft-v3': 5, 'fake/seedream-v5.0': 1, 'fake/z-image-turbo': 126, 'real/docci': 1, 'real/imagenet': 5}
+  24/48 row group | wajah tersimpan: 486 {'fake/flux.2-klein-9b': 177, 'fake/gpt-image-1.5': 46, 'fake/gpt-image-2': 6, 'fake/ideogram-2.0': 4, 'fake/midjourney-7': 47, 'fake/nano-banana-pro': 3, 'fake/recraft-v3': 6, 'fake/seedream-v5.0': 2, 'fake/z-image-turbo': 187, 'real/docci': 2, 'real/imagenet': 6}
+  32/48 row group | wajah tersimpan: 636 {'fake/flux.2-klein-9b': 224, 'fake/gpt-image-1.5': 62, 'fake/gpt-image-2': 7, 'fake/ideogram-2.0': 5, 'fake/midjourney-7': 62, 'fake/nano-banana-pro': 3, 'fake/recraft-v3': 7, 'fake/seedream-v5.0': 4, 'fake/z-image-turbo': 248, 'real/docci': 5, 'real/imagenet': 9}
+  40/48 row group | wajah tersimpan: 805 {'fake/flux.2-klein-9b': 276, 'fake/gpt-image-1.5': 84, 'fake/gpt-image-2': 8, 'fake/ideogram-2.0': 5, 'fake/midjourney-7': 77, 'fake/nano-banana-pro': 4, 'fake/recraft-v3': 11, 'fake/seedream-v5.0': 5, 'fake/z-image-turbo': 317, 'real/docci': 6, 'real/imagenet': 12}
+  48/48 row group | wajah tersimpan: 944 {'fake/flux.2-klein-9b': 314, 'fake/gpt-image-1.5': 96, 'fake/gpt-image-2': 8, 'fake/ideogram-2.0': 5, 'fake/midjourney-7': 89, 'fake/nano-banana-pro': 5, 'fake/recraft-v3': 13, 'fake/seedream-v5.0': 6, 'fake/z-image-turbo': 385, 'real/docci': 7, 'real/imagenet': 16}
+EXIT 0

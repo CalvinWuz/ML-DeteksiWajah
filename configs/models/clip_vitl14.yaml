@@ -1,0 +1,16 @@
+# CLIP ViT-L/14 (Radford dkk., 2021) sebagai detektor, mengikuti Ojha dkk. (CVPR 2023).
+# PERLUASAN di luar brief dosen: ditambahkan untuk mendeteksi generator modern.
+model:
+  name: clip_vitl14
+  hf_id: openai/clip-vit-large-patch14
+  weights: openai/clip-vit-large-patch14
+  head: {}
+  unfreeze:
+    # unit: embeddings, pre_layrnorm, encoder.layers.0..23, post_layernorm, visual_projection
+    # n: 4 -> buka 2 layer transformer terakhir + post_layernorm + visual_projection
+    policy: last_n_modules
+    n: 4
+train:
+  # Fine-tuning ViT-L dengan lr 1e-4 berisiko merusak fitur CLIP; untuk model perluasan ini
+  # tahap B memakai 1e-5 (dicatat sebagai penyimpangan dari aturan 10%).
+  lr_stage_b: 1.0e-5

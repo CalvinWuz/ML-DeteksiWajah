@@ -176,11 +176,16 @@ def evaluate_checkpoint(ckpt_path: Path, loader, frame: pd.DataFrame, image_root
               "mode": cfg["mode"], "data_subset": cfg["data"]["subset"], "eval_sec": round(time.time() - t0, 1),
               "device": str(device), "label_map": LABEL_MAP})
     save_json(m, out_dir / "metrics.json")
-    pred = frame.iloc[res["idx"]][["path", "label"]].copy()
+    extra = [c for c in ("group", "source", "family") if c in frame.columns]
+    pred = frame.iloc[res["idx"]][["path", "label", *extra]].copy()
     pred["prob_fake"] = res["probs"]
     pred["pred"] = (res["probs"] >= thr).astype(int)
     pred["pred_name"] = pred["pred"].map(dict(enumerate(CLASS_NAMES)))
     pred.to_csv(out_dir / "predictions.csv", index=False)
+    if "source" in pred.columns:
+        m["per_group"] = per_group_metrics(pred, thr)
+        save_json(m, out_dir / "metrics.json")
+        per_source_table(pred, thr).to_csv(out_dir / "per_source.csv", index=False)
     title = f"{cfg['model']['name']} tahap {ckpt['stage'].upper()} ({cfg['mode']}, {split_name})"
     M.plot_confusion(m["confusion_matrix"], out_dir / "confusion_matrix.png", title)
     M.plot_roc_pr(res["labels"], res["probs"], out_dir, title)
@@ -188,4 +193,42 @@ def evaluate_checkpoint(ckpt_path: Path, loader, frame: pd.DataFrame, image_root
     auc = m["roc_auc"]
     print(f"[eval {split_name}] {title}: acc {m['accuracy']:.4f} | macro-F1 {m['macro_f1']:.4f} | "
           f"ROC-AUC {auc if auc is None else round(auc, 4)} | n={m['n']}")
+    for g, gm in m.get("per_group", {}).items():
+        det = f"{gm['recall_fake']:.4f}" if gm["n_fake"] else "-"
+        real = f"{gm['recall_real']:.4f}" if gm["n_real"] else "-"
+        print(f"    grup {g:<14} n={gm['n']:>6} acc {gm['accuracy']:.4f} | deteksi fake {det} | "
+              f"real benar {real} | AUC {gm['roc_auc'] if gm['roc_auc'] is None else round(gm['roc_auc'], 4)}")
     return m
+
+
+def per_group_metrics(pred: pd.DataFrame, thr: float) -> dict:
+    """Metrik per grup uji. Grup tanpa gambar real (mis. 'baru', 'lapangan') dipasangkan
+    dengan seluruh gambar real di test agar AUC dan accuracy tetap bisa dihitung."""
+    out = {}
+    real_pool = pred[pred["label"] == 0]
+    for g, part in pred.groupby("group"):
+        if part["label"].nunique() < 2:
+            part = pd.concat([part[part["label"] == 1], real_pool]) if (part["label"] == 1).all() else part
+        mm = M.compute_metrics(part["label"], part["prob_fake"], thr)
+        out[g] = {"n": mm["n"], "n_fake": int((part["label"] == 1).sum()), "n_real": int((part["label"] == 0).sum()),
+                  "accuracy": mm["accuracy"], "roc_auc": mm["roc_auc"],
+                  "recall_fake": mm["per_class"]["fake"]["recall"], "recall_real": mm["per_class"]["real"]["recall"],
+                  "real_dari_pool": bool((pred[pred["group"] == g]["label"] == 1).all())}
+    return out
+
+
+def per_source_table(pred: pd.DataFrame, thr: float) -> pd.DataFrame:
+    """Per sumber/generator: proporsi ditebak benar dan (untuk fake) AUC terhadap semua real test."""
+    from sklearn.metrics import roc_auc_score
+
+    reals = pred[pred["label"] == 0]["prob_fake"]
+    rows = []
+    for (grp, src, lab), part in pred.groupby(["group", "source", "label"]):
+        row = {"group": grp, "source": src, "label": CLASS_NAMES[lab], "n": len(part),
+               "benar": round(float((part["pred"] == lab).mean()), 4),
+               "rata2_prob_fake": round(float(part["prob_fake"].mean()), 4)}
+        if lab == 1 and len(reals):
+            y = [1] * len(part) + [0] * len(reals)
+            row["auc_vs_semua_real"] = round(float(roc_auc_score(y, list(part["prob_fake"]) + list(reals))), 4)
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values(["label", "group", "benar"])

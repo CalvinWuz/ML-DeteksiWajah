@@ -115,8 +115,12 @@ def manifest_dir(cfg) -> Path:
 
 def load_manifest(cfg) -> tuple[pd.DataFrame, Path]:
     mdir = manifest_dir(cfg)
-    path = mdir / f"{cfg['mode']}.csv"
-    info_path = mdir / "manifest_info.json"
+    name = cfg["data"].get("manifest", cfg["mode"])
+    path = mdir / f"{name}.csv"
+    # dataset modern punya info sendiri; dataset 140k memakai manifest_info.json
+    info_path = mdir / f"{name}_info.json"
+    if not info_path.exists():
+        info_path = mdir / "manifest_info.json"
     if not path.exists() or not info_path.exists():
         raise FileNotFoundError(
             f"Manifest {path} belum ada. Jalankan dulu:\n  python scripts/prepare_data.py --download\n"
@@ -135,25 +139,71 @@ def load_manifest(cfg) -> tuple[pd.DataFrame, Path]:
 def build_transforms(cfg) -> dict:
     """Eval/test: transform deterministik bawaan bobot torchvision.
     Train: resize yang sama -> RandomCrop -> RandomHorizontalFlip (augmentasi ringan)."""
-    from .models import get_weights
+    from .models import get_preprocess
 
-    ref = get_weights(cfg).transforms()  # ImageClassification preset
-    crop = ref.crop_size[0]
-    resize = ref.resize_size[0]
-    normalize = T.Normalize(ref.mean, ref.std)
-    train_tf = T.Compose([
-        T.Resize(resize, interpolation=ref.interpolation, antialias=True),
-        T.RandomCrop(crop),
-        T.RandomHorizontalFlip(),
-        T.ToTensor(),
-        normalize,
-    ])
+    ref = get_preprocess(cfg)  # preset bobot pretrained (torchvision) atau CLIP
+    crop, resize, interp = ref["crop"], ref["resize"], ref["interpolation"]
+    normalize = T.Normalize(ref["mean"], ref["std"])
+    eval_tf = T.Compose([T.Resize(resize, interpolation=interp, antialias=True), T.CenterCrop(crop),
+                         T.ToTensor(), normalize])
+    if cfg["data"].get("augment", "basic") == "robust":
+        # Augmentasi yang sama untuk real dan fake: menghapus jejak format/kompresi/resolusi
+        # agar model tidak membedakan kelas dari PNG vs JPEG atau ketajaman gambar.
+        train_tf = T.Compose([
+            T.RandomResizedCrop(crop, scale=(0.75, 1.0), ratio=(0.9, 1.1), interpolation=interp, antialias=True),
+            T.RandomHorizontalFlip(),
+            T.RandomApply([RandomDownUp()], p=0.25),
+            T.RandomApply([T.GaussianBlur(5, sigma=(0.1, 1.5))], p=0.2),
+            T.RandomApply([T.ColorJitter(0.15, 0.15, 0.1, 0.02)], p=0.3),
+            T.RandomApply([RandomJPEG(40, 95)], p=0.6),
+            T.ToTensor(),
+            normalize,
+        ])
+        train_desc = (f"RandomResizedCrop({crop}, scale 0.75-1) -> Flip -> [p.25] perkecil-perbesar -> "
+                      "[p.2] GaussianBlur -> [p.3] ColorJitter -> [p.6] JPEG q40-95 -> ToTensor -> Normalize")
+    else:
+        train_tf = T.Compose([
+            T.Resize(resize, interpolation=interp, antialias=True),
+            T.RandomCrop(crop),
+            T.RandomHorizontalFlip(),
+            T.ToTensor(),
+            normalize,
+        ])
+        train_desc = f"Resize({resize}, {interp.value}) -> RandomCrop({crop}) -> RandomHorizontalFlip -> ToTensor -> Normalize"
     desc = {
-        "eval": f"Resize({resize}, {ref.interpolation.value}) -> CenterCrop({crop}) -> ToTensor -> Normalize(mean={ref.mean}, std={ref.std})",
-        "train": f"Resize({resize}, {ref.interpolation.value}) -> RandomCrop({crop}) -> RandomHorizontalFlip -> ToTensor -> Normalize",
+        "eval": f"Resize({resize}, {interp.value}) -> CenterCrop({crop}) -> ToTensor -> Normalize(mean={ref['mean']}, std={ref['std']})",
+        "train": train_desc,
         "image_size": crop,
     }
-    return {"train": train_tf, "eval": ref, "desc": desc}
+    return {"train": train_tf, "eval": eval_tf, "desc": desc}
+
+
+class RandomJPEG:
+    """Kompres ulang ke JPEG dengan kualitas acak (meniru gambar yang diunggah/dibagikan ulang)."""
+
+    def __init__(self, qmin=40, qmax=95):
+        self.qmin, self.qmax = qmin, qmax
+
+    def __call__(self, img):
+        import io
+        import random
+
+        buf = io.BytesIO()
+        img.convert("RGB").save(buf, "JPEG", quality=random.randint(self.qmin, self.qmax))
+        buf.seek(0)
+        return Image.open(buf).convert("RGB")
+
+
+class RandomDownUp:
+    """Perkecil lalu perbesar kembali (meniru foto beresolusi rendah)."""
+
+    def __call__(self, img):
+        import random
+
+        w, h = img.size
+        f = random.uniform(0.35, 0.8)
+        small = img.resize((max(16, int(w * f)), max(16, int(h * f))), Image.BILINEAR)
+        return small.resize((w, h), Image.BICUBIC)
 
 
 class FaceDataset(Dataset):
@@ -174,15 +224,29 @@ class FaceDataset(Dataset):
         return x, torch.tensor(self.labels[i]), i
 
 
-def make_loader(df, image_root, transform, batch_size, shuffle, num_workers, generator=None):
+def make_loader(df, image_root, transform, batch_size, shuffle, num_workers, generator=None, sampler=None):
     return DataLoader(
         FaceDataset(df, image_root, transform),
         batch_size=batch_size,
         shuffle=shuffle,
+        sampler=sampler,
         num_workers=num_workers,
         persistent_workers=num_workers > 0,
-        generator=generator,
+        generator=generator if sampler is None else None,
     )
+
+
+def balanced_sampler(df: pd.DataFrame, generator):
+    """Peluang terambil: kelas real/fake masing-masing 50%, dan di dalam tiap kelas setiap
+    sumber (mis. ffhq, pexels, gpt-image-1, flux.1-dev) mendapat bagian yang sama.
+    Ukuran satu epoch = jumlah gambar train."""
+    from torch.utils.data import WeightedRandomSampler
+
+    n_src = df.groupby("label")["source"].transform("nunique")
+    per_src = df.groupby(["label", "source"])["source"].transform("size")
+    w = 1.0 / (n_src * per_src)
+    return WeightedRandomSampler(torch.tensor(w.values, dtype=torch.double), num_samples=len(df),
+                                 replacement=True, generator=generator)
 
 
 def build_loaders(cfg, splits=("train", "valid", "test")) -> dict:
@@ -196,7 +260,9 @@ def build_loaders(cfg, splits=("train", "valid", "test")) -> dict:
         if split == "train":
             g = torch.Generator().manual_seed(cfg["seed"])
             out["train_generator"] = g
-            out[split] = make_loader(part, image_root, tfs["train"], cfg["train"]["batch_size"], True, nw, g)
+            sampler = balanced_sampler(part, g) if cfg["data"].get("balance") == "label_source" else None
+            out[split] = make_loader(part, image_root, tfs["train"], cfg["train"]["batch_size"], sampler is None,
+                                     nw, g, sampler=sampler)
         else:
             out[split] = make_loader(part, image_root, tfs["eval"], cfg["train"]["eval_batch_size"], False, nw)
     return out

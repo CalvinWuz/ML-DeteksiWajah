@@ -9,3 +9,8 @@ __pycache__/
 .ipynb_checkpoints/
 .DS_Store
 hasil_*.csv
+# dataset modern (ribuan gambar) dan gambar buatan pengguna
+data/modern/
+data/user_generated/gemini/
+data/user_generated/chatgpt/
+models_ext/

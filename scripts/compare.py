@@ -18,7 +18,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 from sklearn.metrics import roc_auc_score, roc_curve  # noqa: E402
 
-from faceauth.config import MODELS  # noqa: E402
+from faceauth.config import BRIEF_MODELS, MODELS  # noqa: E402
 from faceauth.utils import PROJECT_ROOT, load_json  # noqa: E402
 
 NA = "belum tersedia"
@@ -44,6 +44,9 @@ def row_for(run_dir: Path, model: str, stage: str) -> dict:
         "unfreeze": (f"{i['unfreeze']['policy']} n={i['unfreeze']['n']}" if stage == "b" else "head saja"),
         "n_train": i["n_train"], "n_val": i["n_val"], "mode": i["mode"], "seed": i["seed"],
         "device": i["device"], "train_min": round(i.get("train_duration_sec", 0) / 60, 1),
+        # dataset modern: tingkat deteksi fake per grup uji + proporsi real yang benar
+        **{f"deteksi_{g}": round(v["recall_fake"], 4) for g, v in m.get("per_group", {}).items() if v["n_fake"]},
+        **({"real_benar": round(pc["real"]["recall"], 4)} if m.get("per_group") else {}),
     }
 
 
@@ -86,13 +89,16 @@ def main():
     ap.add_argument("--run-name", required=True)
     args = ap.parse_args()
     run_dir = PROJECT_ROOT / "outputs" / args.run_name
-    df = pd.DataFrame([row_for(run_dir, m, s) for m in MODELS for s in ("a", "b")])
+    # model brief selalu ditampilkan; CLIP (perluasan) hanya jika run ini memang melatihnya
+    models = [m for m in MODELS if m in BRIEF_MODELS or (run_dir / m).exists()]
+    df = pd.DataFrame([row_for(run_dir, m, s) for m in models for s in ("a", "b")])
     for c in ("best_epoch", "epochs_run", "batch_size", "params_total", "params_trainable", "n_train", "n_val", "n_test", "seed"):
         if c in df:
             df[c] = df[c].astype("Int64")  # tetap bilangan bulat walau ada baris "belum tersedia"
     df.to_csv(run_dir / "comparison.csv", index=False)
     cols = ["model", "tahap", "status", "accuracy", "roc_auc", "macro_f1", "f1_real", "f1_fake",
             "best_epoch", "epochs_run", "lr", "unfreeze", "params_trainable", "n_train", "device", "train_min"]
+    cols += ["real_benar"] + sorted(c for c in df.columns if c.startswith("deteksi_"))
     show = df[[c for c in cols if c in df.columns]].astype(object).fillna("-")
     lines = [f"# Perbandingan run `{args.run_name}`", "",
              "Metrik pada split test, threshold 0.5, kelas positif = fake. "

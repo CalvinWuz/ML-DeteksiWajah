@@ -35,6 +35,21 @@ modes:
     epochs_a: 10    # "Pre train: 10 gpp" -> ditafsirkan 10 epoch (BELUM dikonfirmasi)
     epochs_b: 10    # usulan; jumlah epoch fine-tuning belum diberikan
 
+  # ---- Dataset MODERN (perluasan setelah brief): wajah asli vs wajah dari generator modern.
+  # Dibuat oleh scripts/prepare_modern.py. Lihat METODE.md bagian "Perluasan: generator modern".
+  modern_quick:     # pemeriksaan cepat alur dataset modern; BUKAN hasil penelitian
+    manifest: modern_quick
+    augment: robust
+    balance: label_source
+    epochs_a: 1
+    epochs_b: 1
+  modern:
+    manifest: modern
+    augment: robust          # JPEG/blur/resize acak pada real dan fake
+    balance: label_source    # tiap sumber dalam satu kelas mendapat porsi sama
+    epochs_a: 5              # dikurangi dari 10 karena waktu komputasi (4 model x data ~30 ribu gambar)
+    epochs_b: 5
+
 train:
   batch_size: 8             # mulai kecil; naikkan bila memori cukup (--batch-size)
   eval_batch_size: 32

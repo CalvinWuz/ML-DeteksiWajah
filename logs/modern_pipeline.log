@@ -1,0 +1,10 @@
+=== 08/10 00:58 mulai
+=== 00:58 --split validation --out-name val --shards 0 1 2 --cap-fake 60 --cap-real 1500
+15 shard tersedia untuk split validation
+[validation-00000-of-00015.parquet] 0 row group, kandidat: []
+[validation-00001-of-00015.parquet] 0 row group, kandidat: []
+[validation-00002-of-00015.parquet] 0 row group, kandidat: []
+=== 00:59 --split train --shards 0 75 150 225 300 375 450 525 --cap-fake 350 --cap-real 6000
+608 shard tersedia untuk split train
+[train-00000-of-00032-00000.parquet] 0 row group, kandidat: []
+[train-00003-of-00032-00018.parquet] 0 row group, kandidat: []

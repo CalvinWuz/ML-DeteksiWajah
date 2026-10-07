@@ -18,6 +18,7 @@ WEIGHTS = {
 }
 WEIGHTED_TYPES = (nn.Conv2d, nn.Linear)
 NORM_TYPES = (nn.BatchNorm2d, nn.LayerNorm)
+# Linear di dalam attention/MLP transformer juga dihitung sebagai layer berbobot
 
 
 @dataclass
@@ -28,8 +29,24 @@ class ModelSpec:
     units: list = field(default_factory=list)  # [(nama, modul)] urut dari input ke output
 
 
+CLIP_MEAN = [0.48145466, 0.4578275, 0.40821073]
+CLIP_STD = [0.26862954, 0.26130258, 0.27577711]
+
+
 def get_weights(cfg):
     return getattr(WEIGHTS[cfg["model"]["name"]], cfg["model"]["weights"])
+
+
+def get_preprocess(cfg) -> dict:
+    """Ukuran, interpolasi, mean/std yang sesuai bobot pretrained model."""
+    from torchvision.transforms import InterpolationMode
+
+    if cfg["model"]["name"] == "clip_vitl14":  # sesuai preprocessor_config.json CLIP
+        return {"resize": 224, "crop": 224, "interpolation": InterpolationMode.BICUBIC,
+                "mean": CLIP_MEAN, "std": CLIP_STD}
+    ref = get_weights(cfg).transforms()
+    return {"resize": ref.resize_size[0], "crop": ref.crop_size[0], "interpolation": ref.interpolation,
+            "mean": list(ref.mean), "std": list(ref.std)}
 
 
 # ---------------------------------------------------------------- VGG16
@@ -98,12 +115,47 @@ def _build_maxvit_t(cfg, weights):
     return ModelSpec("maxvit_t", m, m.classifier, units)
 
 
-BUILDERS = {"vgg16": _build_vgg16, "efficientnet_b0": _build_efficientnet_b0, "maxvit_t": _build_maxvit_t}
+# ---------------------------------------------------------------- CLIP ViT-L/14 (perluasan, bukan dari brief)
+class CLIPDetector(nn.Module):
+    """Encoder gambar CLIP ViT-L/14 -> embedding 768 -> Linear(1).
+    Mengikuti gagasan Ojha dkk. (CVPR 2023): fitur CLIP yang dibekukan + classifier linear
+    cenderung lebih tahan terhadap generator yang tidak dilihat saat training."""
+
+    def __init__(self, pretrained: bool, hf_id: str):
+        super().__init__()
+        from transformers import CLIPVisionConfig, CLIPVisionModelWithProjection
+
+        if pretrained:
+            self.encoder = CLIPVisionModelWithProjection.from_pretrained(hf_id)
+        else:  # arsitektur saja; bobot diisi dari checkpoint proyek
+            self.encoder = CLIPVisionModelWithProjection(CLIPVisionConfig.from_pretrained(hf_id))
+        self.head = nn.Linear(self.encoder.config.projection_dim, 1)
+
+    def forward(self, x):
+        emb = self.encoder(pixel_values=x).image_embeds
+        emb = emb / emb.norm(dim=-1, keepdim=True)  # embedding dinormalisasi seperti pada CLIP
+        return self.head(emb)
+
+
+def _build_clip_vitl14(cfg, weights):
+    m = CLIPDetector(pretrained=weights is not None, hf_id=cfg["model"]["hf_id"])
+    vm = m.encoder.vision_model
+    units = [("embeddings", vm.embeddings), ("pre_layrnorm", vm.pre_layrnorm)]
+    units += [(f"encoder.layers.{i}", layer) for i, layer in enumerate(vm.encoder.layers)]
+    units += [("post_layernorm", vm.post_layernorm), ("visual_projection", m.encoder.visual_projection)]
+    return ModelSpec("clip_vitl14", m, m.head, units)
+
+
+BUILDERS = {"vgg16": _build_vgg16, "efficientnet_b0": _build_efficientnet_b0, "maxvit_t": _build_maxvit_t,
+            "clip_vitl14": _build_clip_vitl14}
 
 
 def build_model(cfg, pretrained: bool = True) -> ModelSpec:
     """pretrained=False dipakai saat bobot akan langsung ditimpa checkpoint (tanpa unduh)."""
-    weights = get_weights(cfg) if pretrained else None
+    if cfg["model"]["name"] == "clip_vitl14":
+        weights = "hf" if pretrained else None
+    else:
+        weights = get_weights(cfg) if pretrained else None
     return BUILDERS[cfg["model"]["name"]](cfg, weights)
 
 

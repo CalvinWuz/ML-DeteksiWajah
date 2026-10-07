@@ -94,3 +94,49 @@ Aturan Flatten dan "10 layer" **tidak** dipaksakan ke kedua model ini.
 - Tan, M., & Le, Q. V. (2019). EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks. arXiv:1905.11946.
 - Tu, Z., dkk. (2022). MaxViT: Multi-Axis Vision Transformer. arXiv:2204.01697.
 - Dokumentasi: [torchvision VGG16](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.vgg16.html), [EfficientNet-B0](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.efficientnet_b0.html), [MaxViT-T](https://docs.pytorch.org/vision/stable/models/generated/torchvision.models.maxvit_t.html), [Adam](https://docs.pytorch.org/docs/stable/generated/torch.optim.Adam.html), [MPS](https://docs.pytorch.org/docs/stable/notes/mps.html), [ROC-AUC scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.roc_auc_score.html), [Transfer learning & fine-tuning (Keras guide, konsep)](https://keras.io/guides/transfer_learning/).
+
+## 9. Perluasan: deteksi wajah dari generator modern
+
+**Status: perluasan di luar brief dosen**, ditambahkan setelah uji coba menunjukkan model 140k gagal mengenali wajah buatan AI modern. Dalam uji itu, 10 wajah buatan aplikasi AI terbaru semuanya ditebak "asli" oleh MaxViT tahap B. Penyebabnya: model hanya pernah melihat StyleGAN (2019), sementara generator sekarang berbasis diffusion/autoregresif dengan jejak yang berbeda. Ini masalah generalisasi yang dikenal dalam riset (Wang dkk., CVPR 2020; Ojha dkk., CVPR 2023).
+
+### Data
+
+| Sumber | Real | Fake | Catatan |
+|---|---|---|---|
+| 140k (Kaggle) | FFHQ | StyleGAN | subset 2.000/200/500 per kelas (train/val/test) |
+| [DeepFakeFace](https://huggingface.co/datasets/OpenRL/DeepFakeFace) (Song dkk., 2023) | IMDB-WIKI | Stable Diffusion 1.5 | split per folder identitas (00–79 train, 80–89 val, 90–99 test) agar orang yang sama tidak bocor |
+| [OpenFake](https://huggingface.co/datasets/ComplexDataLab/OpenFake) (CC-BY-NC-4.0) | Pexels, LAION, ImageNet, DOCCI | ±60 generator: gpt-image, DALL-E 3, Imagen, Nano Banana, Midjourney, Flux, SD 3.5/SDXL, Grok, Seedream, dll. | hanya baris yang prompt-nya menggambarkan orang; anime/kartun/video dikeluarkan |
+| Buatan pengguna | — | aplikasi Gemini dan ChatGPT | hanya untuk uji (grup `lapangan`) |
+
+- OpenFake berukuran 3,4 TB. `faceauth/parquet_pages.py` membaca header halaman parquet dan mengunduh **hanya halaman berisi gambar terpilih**.
+- Semua gambar dipotong ke wajah terbesar dengan detektor YuNet (OpenCV), framing 1,25× kotak wajah (setara FFHQ), lalu diubah ke 256×256 PNG. Demo memakai fungsi pemotongan yang sama.
+- **Saringan CLIP zero-shot**: potongan yang bukan foto wajah manusia (anime, kartun, lukisan, patung, hewan, teks) dibuang. Saringan berlaku sama untuk real dan fake; tingkat buang pada data 140k/DFF sekitar 1% untuk kedua kelas.
+- Duplikat persis (md5) dibuang.
+
+### Desain uji
+
+| Grup | Isi | Menjawab pertanyaan |
+|---|---|---|
+| `stylegan` | FFHQ vs StyleGAN | apakah kemampuan lama tetap ada? |
+| `dff` | IMDB-WIKI vs SD 1.5 | identitas tidak bocor dari train |
+| `modern_dikenal` | real Pexels/LAION vs generator yang ada di train | generator yang pernah dilihat |
+| `modern_baru` | generator OpenFake-test yang **tidak ada** di train (mis. gpt-image-1.5/2, nano-banana-pro, midjourney-7, flux.2) | generalisasi ke generator lebih baru |
+| `lapangan` | gambar buatan pengguna dari aplikasi Gemini/ChatGPT | kondisi pemakaian nyata |
+
+Grup tanpa gambar real (`modern_baru`, `lapangan`) dinilai terhadap seluruh gambar real di test. Laporan per generator ada di `per_source.csv`.
+
+### Training
+
+- Mode `modern`: augmentasi tahan-format (crop acak, flip, perkecil-perbesar, blur, color jitter, **JPEG kualitas 40–95**) diterapkan sama ke real dan fake. Tujuannya agar model tidak membedakan kelas dari PNG vs JPEG atau ketajaman.
+- **Sampling seimbang**: real dan fake masing-masing 50%; di dalam kelas, setiap sumber/generator mendapat porsi sama.
+- **Epoch 5 + 5** (bukan 10 + 10) karena waktu komputasi. Ini penyimpangan dari brief.
+- **Model ke-4, CLIP ViT-L/14** (Radford dkk., 2021) mengikuti gagasan UnivFD (Ojha dkk., CVPR 2023): embedding CLIP dinormalisasi → Linear(1). Tahap A = linear probe; tahap B membuka 2 layer transformer terakhir + post-layernorm + proyeksi dengan **lr 1e-5** (penyimpangan dari aturan 10%, karena ViT-L mudah rusak dengan lr besar).
+
+### Keterbatasan
+
+- Tidak ada detektor yang terjamin berhasil pada generator yang belum pernah dilihat. Benchmark terbaru menunjukkan detektor open-source bisa jatuh di bawah 45% pada gambar Nano Banana ([arXiv 2602.07814](https://arxiv.org/html/2602.07814v1)).
+- Contoh Nano Banana dan gpt-image-2 di OpenFake sedikit, jadi angka per generator untuk keduanya berisiko berisik.
+- Gambar OpenFake berasal dari prompt umum, bukan khusus wajah. Wajah sering kecil dan diperbesar, sehingga ketajamannya berbeda dari foto wajah close-up.
+- OpenFake berlisensi CC-BY-NC-4.0: hanya untuk riset/non-komersial.
+
+Rujukan tambahan: Song dkk. (2023) *Robustness and Generalizability of Deepfake Detection: A Study with Diffusion Models*, arXiv:2309.02218; Ojha, Li, Lee (2023) *Towards Universal Fake Image Detectors that Generalize Across Generative Models*, CVPR; Wang dkk. (2020) *CNN-generated images are surprisingly easy to spot... for now*, CVPR; Radford dkk. (2021) *Learning Transferable Visual Models From Natural Language Supervision*, ICML.

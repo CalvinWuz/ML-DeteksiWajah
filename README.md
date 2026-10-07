@@ -20,7 +20,10 @@ scripts/train.py             training tahap A + B, lalu evaluasi test
 scripts/evaluate.py          evaluasi ulang sebuah checkpoint
 scripts/predict.py           prediksi gambar baru
 scripts/compare.py           tabel perbandingan model x tahap + grafik ROC gabungan
-scripts/demo.py              aplikasi demo di browser untuk presentasi
+scripts/demo.py              aplikasi demo di browser untuk presentasi (potong wajah otomatis, banyak wajah)
+scripts/fetch_openfake.py    ambil wajah dari dataset OpenFake (generator modern) tanpa unduh 3,4 TB
+scripts/prepare_modern.py    susun dataset modern (potong wajah, saringan CLIP, grup uji)
+scripts/run_modern_pipeline.sh  seluruh alur versi modern dalam satu perintah
 notebooks/00_pengantar.ipynb pengantar langkah demi langkah (tidak menjalankan training)
 data/                        dataset dan manifest (tidak masuk git)
 outputs/                     checkpoint dan hasil (tidak masuk git)
@@ -219,7 +222,39 @@ Evaluasi ulang checkpoint:
 python scripts/evaluate.py --checkpoint outputs/subset/vgg16/stage_b/best.pt
 ```
 
-## 8. Aplikasi demo (untuk presentasi)
+## 8. Versi modern: deteksi wajah AI zaman sekarang
+
+Model versi 140k hanya mengenal wajah StyleGAN, sehingga **gagal pada wajah dari ChatGPT, Gemini, Midjourney, dan sejenisnya**. Versi modern menambahkan data dari puluhan generator terbaru, potong wajah otomatis, augmentasi tahan-kompresi, dan model ke-4 (CLIP ViT-L/14). Penjelasan lengkap ada di METODE.md §9.
+
+Satu perintah untuk semuanya: ambil data, susun dataset, latih 4 model, lalu buat tabel. Prosesnya bisa belasan jam. Laptop jangan ditutup dan tetap dicolok charger:
+
+```bash
+nohup caffeinate -i -s bash scripts/run_modern_pipeline.sh > logs/modern_pipeline.log 2>&1 &
+```
+
+Lihat progresnya:
+
+```bash
+tail -5 logs/modern_pipeline.log
+```
+
+Kalau terputus, jalankan perintah yang sama lagi. Bagian yang sudah selesai akan dilewati.
+
+### Uji dengan gambar Gemini/ChatGPT buatanmu sendiri
+
+1. Buka daftar prompt: `open data/user_generated/prompts.csv`
+2. Buat gambar di aplikasi Gemini atau ChatGPT, **unduh file aslinya (jangan screenshot)**, lalu simpan ke `data/user_generated/gemini/` atau `data/user_generated/chatgpt/`, misalnya `001.png`.
+3. Setelah pipeline selesai, susun ulang dataset supaya gambarmu masuk sebagai grup uji `lapangan`:
+   ```bash
+   python scripts/prepare_modern.py
+   ```
+4. Evaluasi ulang model, misalnya CLIP:
+   ```bash
+   python scripts/evaluate.py --checkpoint outputs/modern/clip_vitl14/stage_b/best.pt
+   ```
+   Hasil per generator ada di `outputs/modern/clip_vitl14/stage_b/test_eval/per_source.csv`.
+
+## 9. Aplikasi demo (untuk presentasi)
 
 ```bash
 streamlit run scripts/demo.py
@@ -227,13 +262,13 @@ streamlit run scripts/demo.py
 
 Browser otomatis terbuka di `http://localhost:8501`. Semuanya berjalan lokal, tanpa internet dan tanpa kamera.
 
-- **Coba gambar**: ambil wajah acak dari data test (bisa disembunyikan labelnya untuk tebak-tebakan dengan audiens), atau upload gambar sendiri. Centang *Bandingkan semua model* untuk melihat tebakan 6 model sekaligus.
+- **Coba gambar**: ambil wajah acak dari data test (bisa disembunyikan labelnya untuk tebak-tebakan dengan audiens), atau upload gambar sendiri. Wajah dideteksi dan dipotong otomatis; foto berisi banyak orang atau kolase dinilai per wajah. Pilih hasil training `modern` untuk model yang mengenal generator terbaru.
 - **Hasil eksperimen**: tabel perbandingan, kurva ROC, kurva training, confusion matrix.
 - **Cara kerja**: ringkasan alur untuk dijelaskan.
 
 Untuk menutup aplikasi, tekan `Ctrl+C` di Terminal.
 
-## 9. Notebook
+## 10. Notebook
 
 ```bash
 python -m ipykernel install --user --name face-authenticity --display-name "Python (face-authenticity)"
@@ -241,7 +276,7 @@ python -m ipykernel install --user --name face-authenticity --display-name "Pyth
 
 Buka `notebooks/00_pengantar.ipynb` di VS Code atau Jupyter, pilih kernel **Python (face-authenticity)**. Notebook menampilkan data, label, arsitektur VGG16, dan prediksi pada batch kecil. Notebook ini tidak menjalankan training.
 
-## 10. Masalah umum
+## 11. Masalah umum
 
 - **`MPS backend out of memory`**: turunkan batch, misalnya `--batch-size 4`.
 - **Operasi tidak didukung MPS**: jalankan dengan `--device cpu` (lebih lambat), atau tambahkan `PYTORCH_ENABLE_MPS_FALLBACK=1` di depan perintah.

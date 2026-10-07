@@ -29,7 +29,7 @@ from faceauth.config import MODELS, load_config  # noqa: E402
 from faceauth.data import build_transforms, load_manifest, make_loader  # noqa: E402
 from faceauth.engine import load_checkpoint, save_checkpoint  # noqa: E402
 from faceauth.models import build_model, freeze_backbone, set_train_mode, summarize, unfreeze_last  # noqa: E402
-from faceauth.utils import PROJECT_ROOT, count_params, pick_device, save_json, set_seed  # noqa: E402
+from faceauth.utils import PROJECT_ROOT, count_params, load_json, pick_device, save_json, set_seed  # noqa: E402
 
 
 def snapshot(model):
@@ -172,7 +172,8 @@ def main():
     print(f"Device: {device}")
     out = PROJECT_ROOT / "logs/checks"
     out.mkdir(parents=True, exist_ok=True)
-    results = {}
+    res_path = out / f"model_checks_{device.type}.json"
+    results = load_json(res_path) if res_path.exists() else {}  # gabung dengan hasil model lain
     for m in args.models:
         try:
             results[m] = check(m, device, args.batch_size, args.timing_steps)
@@ -180,9 +181,9 @@ def main():
         except Exception as e:  # noqa: BLE001 - laporkan dan lanjut ke model berikutnya
             results[m] = {"model": m, "device": str(device), "error": f"{type(e).__name__}: {e}"}
             print(f"\n[GAGAL] {m} di {device}: {type(e).__name__}: {e}\n")
-    save_json(results, out / f"model_checks_{device.type}.json")
+    save_json(results, res_path)
     print(f"Hasil disimpan di logs/checks/model_checks_{device.type}.json")
-    if any("error" in r for r in results.values()):
+    if any("error" in results[m] for m in args.models):
         sys.exit(1)
 
 

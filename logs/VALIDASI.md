@@ -125,11 +125,26 @@ Pengamatan:
 - ROC-AUC tahap B semuanya ≥ 0,9998, mendekati batas atas. Untuk membedakan model, accuracy dan jumlah kesalahan lebih informatif.
 - Epoch terbaik tahap A di ketiga model = 10/10, jadi tahap A kemungkinan belum konvergen. Ini relevan karena tahap B mulai dari checkpoint tersebut.
 
-## 10. Belum terverifikasi
+## 10. Perluasan: generator modern (7–8 Oktober 2026)
+
+Pemicu: pengguna mengunggah kolase 10 wajah buatan aplikasi AI modern ke demo. Semua model 140k menebak "asli" (prob AI ≈ 0%). Pengujian ulang dengan memotong tiap wajah (dari screenshot, ±118 px) memberi hasil sama untuk model tahap B. Kesimpulan: kegagalan generalisasi ke generator baru, bukan masalah kolase.
+
+Sudah diverifikasi:
+
+- Transform evaluasi baru identik dengan preset torchvision (selisih maksimum 0,0 pada 8 gambar × 3 model), jadi hasil 140k tetap valid.
+- Detektor wajah YuNet: 10/10 wajah di kolase terdeteksi; wajah FFHQ terdeteksi.
+- Pembacaan parquet per halaman (`faceauth/parquet_pages.py`): header halaman terbaca, gambar terdekode dan cocok dengan baris metadata. Satu shard test OpenFake (7.031 baris) menghasilkan 944 wajah tanpa mengunduh file 5 GB utuh.
+- CLIP ViT-L/14 di MPS (`check_models.py`): forward/backward OK, tahap A hanya head berubah (769 parameter), tahap B hanya 2 layer terakhir + post-LN + proyeksi berubah (25,98 juta parameter), checkpoint identik, ±25 gambar/detik saat fine-tuning, memori MPS 4,4 GB pada batch 8.
+- Saringan CLIP: yang terbuang terutama anime, ilustrasi, hewan, lukisan, teks. Tingkat buang data 140k/DFF ±1% untuk real dan fake. Foto bayi asli sempat ikut terbuang, jadi prompt "foto bayi/anak" ditambahkan.
+- Alur `train.py --mode modern_quick` (96 gambar latih) berjalan: sampler seimbang, augmentasi robust, evaluasi per grup dan per generator. Angkanya tidak bermakna.
+
+Sedang berjalan (pipeline semalam, `logs/modern_pipeline.log`): pengambilan data OpenFake → `prepare_modern.py` → training 4 model mode `modern` (5+5 epoch) → `compare.py`.
+
+## 11. Belum terverifikasi
 
 - Pengulangan dengan seed lain dan uji signifikansi perbedaan antar-model.
 - Hasil dengan seed lain, batch lebih besar, lr 1e-5, atau kebijakan `last_n_weighted`.
 - Eksekusi di CPU (`--device cpu`).
 - Ketahanan pada gambar di luar dataset (generator lain, foto tanpa crop wajah). Cakupan dataset hanya FFHQ vs StyleGAN.
-- Dataset alternatif DeepFakeFace dan salinan Hugging Face belum diimplementasikan atau diaudit.
+- Hasil training mode `modern` (belum selesai) dan grup uji `lapangan` (menunggu gambar buatan pengguna).
 - Interpretasi "10 gpp", "10 layer terakhir", tahap penerapan lr 10%, dan "tambahan sebelum Flatten" **masih perlu dikonfirmasi** ke pembimbing (lihat METODE.md).

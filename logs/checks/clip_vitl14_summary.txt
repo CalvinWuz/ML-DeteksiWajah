@@ -1,0 +1,5 @@
+Model: clip_vitl14
+modul         tipe                  output shape                    params     trainable
+encoder       CLIPVisionModelWithProjectionCLIPVisionModelOutput      303,966,208             0
+head          Linear                (1, 1)                             769           769
+TOTAL params: 303,966,977 | trainable: 769 | beku: 303,966,208

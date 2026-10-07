@@ -1,0 +1,10 @@
+{
+  "image_root": "data/modern",
+  "label_map": {
+    "real": 0,
+    "fake": 1
+  },
+  "positive_class": "fake",
+  "seed": 42,
+  "description": "Wajah 256x256 hasil potong YuNet; lihat scripts/prepare_modern.py"
+}
