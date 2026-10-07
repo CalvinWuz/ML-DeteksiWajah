@@ -1,0 +1,25 @@
+Data: {'train': '2000 (1000 fake)', 'valid': '1000 (500 fake)', 'test': '20000 (10000 fake)'}
+[A] epoch 1/10 | train loss 0.6276 acc 0.6645 | val loss 0.6003 acc 0.6870 auc 0.7593 | 28.7s  *best*
+[A] epoch 2/10 | train loss 0.5470 acc 0.7430 | val loss 0.5591 acc 0.7080 auc 0.7949 | 24.2s  *best*
+[A] epoch 3/10 | train loss 0.5029 acc 0.7710 | val loss 0.5332 acc 0.7300 auc 0.8122 | 24.7s  *best*
+[A] epoch 4/10 | train loss 0.4648 acc 0.7875 | val loss 0.5098 acc 0.7400 auc 0.8306 | 24.4s  *best*
+[A] epoch 5/10 | train loss 0.4384 acc 0.8020 | val loss 0.4908 acc 0.7550 auc 0.8438 | 24.4s  *best*
+[A] epoch 6/10 | train loss 0.4157 acc 0.8135 | val loss 0.4792 acc 0.7570 auc 0.8524 | 24.8s  *best*
+[A] epoch 7/10 | train loss 0.3977 acc 0.8255 | val loss 0.4650 acc 0.7640 auc 0.8611 | 25.4s  *best*
+[A] epoch 8/10 | train loss 0.3800 acc 0.8325 | val loss 0.4499 acc 0.7820 auc 0.8703 | 25.6s  *best*
+[A] epoch 9/10 | train loss 0.3620 acc 0.8375 | val loss 0.4424 acc 0.7910 auc 0.8761 | 25.9s  *best*
+[A] epoch 10/10 | train loss 0.3470 acc 0.8515 | val loss 0.4342 acc 0.7900 auc 0.88 | 26.3s  *best*
+[eval test] maxvit_t tahap A (subset, test): acc 0.8109 | macro-F1 0.8109 | ROC-AUC 0.8909 | n=20000
+[B] epoch 1/10 | train loss 0.3400 acc 0.8515 | val loss 0.3125 acc 0.8710 auc 0.961 | 32.9s  *best*
+[B] epoch 2/10 | train loss 0.1568 acc 0.9330 | val loss 0.2330 acc 0.9140 auc 0.9711 | 33.0s  *best*
+[B] epoch 3/10 | train loss 0.0871 acc 0.9685 | val loss 0.2031 acc 0.9180 auc 0.978 | 33.0s  *best*
+[B] epoch 4/10 | train loss 0.0490 acc 0.9805 | val loss 0.1749 acc 0.9390 auc 0.9844 | 32.7s  *best*
+[B] epoch 5/10 | train loss 0.0490 acc 0.9810 | val loss 0.3977 acc 0.8780 auc 0.9846 | 33.0s
+[B] epoch 6/10 | train loss 0.0407 acc 0.9870 | val loss 0.2685 acc 0.9140 auc 0.9835 | 32.3s
+[B] epoch 7/10 | train loss 0.0347 acc 0.9880 | val loss 0.3116 acc 0.9040 auc 0.9851 | 32.4s
+[B] epoch 8/10 | train loss 0.0209 acc 0.9940 | val loss 0.4077 acc 0.9010 auc 0.9875 | 33.0s
+[B] epoch 9/10 | train loss 0.0438 acc 0.9850 | val loss 0.1958 acc 0.9340 auc 0.9853 | 32.2s
+[B] epoch 10/10 | train loss 0.0165 acc 0.9920 | val loss 0.2319 acc 0.9310 auc 0.9848 | 31.9s
+[eval test] maxvit_t tahap B (subset, test): acc 0.9315 | macro-F1 0.9315 | ROC-AUC 0.9832 | n=20000
+Selesai 21:49:18. Kurva: outputs/subset/maxvit_t/curves.png
+EXIT maxvit_t 

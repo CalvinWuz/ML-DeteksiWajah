@@ -1,0 +1,70 @@
+Device: mps
+Downloading: "https://download.pytorch.org/models/vgg16-397923af.pth" to /Users/calvinn/.cache/torch/hub/checkpoints/vgg16-397923af.pth
+Model: vgg16
+modul         tipe                  output shape                    params     trainable
+features      Sequential            (1, 512, 7, 7)              14,714,688             0
+avgpool       AdaptiveAvgPool2d     (1, 512, 7, 7)                       0             0
+pre_flatten   Identity              (1, 512, 7, 7)                       0             0
+flatten       Flatten               (1, 25088)                           0             0
+classifier    Sequential            (1, 1)                       6,423,041     6,423,041
+TOTAL params: 21,137,729 | trainable: 6,423,041 | beku: 14,714,688
+Dimensi Flatten: 25,088
+Unit backbone (indeks features.*):
+  features.0    Conv2d      -
+  features.1    ReLU        -
+  features.2    Conv2d      -
+  features.3    ReLU        -
+  features.4    MaxPool2d   -
+  features.5    Conv2d      -
+  features.6    ReLU        -
+  features.7    Conv2d      -
+  features.8    ReLU        -
+  features.9    MaxPool2d   -
+  features.10   Conv2d      -
+  features.11   ReLU        -
+  features.12   Conv2d      -
+  features.13   ReLU        -
+  features.14   Conv2d      -
+  features.15   ReLU        -
+  features.16   MaxPool2d   -
+  features.17   Conv2d      -
+  features.18   ReLU        -
+  features.19   Conv2d      -
+  features.20   ReLU        -
+  features.21   Conv2d      -
+  features.22   ReLU        -
+  features.23   MaxPool2d   -
+  features.24   Conv2d      -
+  features.25   ReLU        -
+  features.26   Conv2d      -
+  features.27   ReLU        -
+  features.28   Conv2d      -
+  features.29   ReLU        -
+  features.30   MaxPool2d   -
+
+[OK] vgg16: forward [8, 1], tahap A hanya head berubah, tahap B backbone terbuka berubah (8/8 tensor), checkpoint identik, 135.0 img/s (tahap B, batch 8)
+
+Model: efficientnet_b0
+modul         tipe                  output shape                    params     trainable
+features      Sequential            (1, 1280, 7, 7)              4,007,548             0
+avgpool       AdaptiveAvgPool2d     (1, 1280, 1, 1)                      0             0
+classifier    Sequential            (1, 1)                           1,281         1,281
+TOTAL params: 4,008,829 | trainable: 1,281 | beku: 4,007,548
+
+[OK] efficientnet_b0: forward [8, 1], tahap A hanya head berubah, tahap B backbone terbuka berubah (68/68 tensor), checkpoint identik, 179.4 img/s (tahap B, batch 8)
+
+Downloading: "https://download.pytorch.org/models/maxvit_t-bc5ab103.pth" to /Users/calvinn/.cache/torch/hub/checkpoints/maxvit_t-bc5ab103.pth
+Model: maxvit_t
+modul         tipe                  output shape                    params     trainable
+stem          Sequential            (1, 64, 112, 112)               38,784             0
+blocks.0      MaxVitBlock           (1, 64, 56, 56)                294,952             0
+blocks.1      MaxVitBlock           (1, 128, 28, 28)             1,114,064             0
+blocks.2      MaxVitBlock           (1, 256, 14, 14)            11,165,456             0
+blocks.3      MaxVitBlock           (1, 512, 7, 7)              17,530,688             0
+classifier    Sequential            (1, 1)                         264,193       264,193
+TOTAL params: 30,408,137 | trainable: 264,193 | beku: 30,143,944
+
+[OK] maxvit_t: forward [8, 1], tahap A hanya head berubah, tahap B backbone terbuka berubah (82/82 tensor), checkpoint identik, 84.9 img/s (tahap B, batch 8)
+
+Hasil disimpan di logs/checks/model_checks_mps.json
+EXIT 0

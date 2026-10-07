@@ -1,0 +1,12 @@
+# MaxViT-T (Tu et al., 2022), bobot ImageNet dari torchvision. Varian T = usulan.
+# Classifier bawaan dipertahankan (pool -> LayerNorm -> Linear -> Tanh -> Linear),
+# hanya Linear terakhir diganti menjadi 1 logit. Input harus 224x224.
+model:
+  name: maxvit_t
+  weights: IMAGENET1K_V1
+  head: {}
+  unfreeze:
+    # unit backbone: [stem, blocks.0, blocks.1, blocks.2, blocks.3]
+    # n: 1 -> buka stage terakhir (blocks.3) (usulan perluasan rancangan).
+    policy: last_n_modules
+    n: 1

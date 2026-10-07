@@ -1,0 +1,41 @@
+Model: vgg16
+modul         tipe                  output shape                    params     trainable
+features      Sequential            (1, 512, 7, 7)              14,714,688             0
+avgpool       AdaptiveAvgPool2d     (1, 512, 7, 7)                       0             0
+pre_flatten   Identity              (1, 512, 7, 7)                       0             0
+flatten       Flatten               (1, 25088)                           0             0
+classifier    Sequential            (1, 1)                       6,423,041     6,423,041
+TOTAL params: 21,137,729 | trainable: 6,423,041 | beku: 14,714,688
+Dimensi Flatten: 25,088
+Unit backbone (indeks features.*):
+  features.0    Conv2d      -
+  features.1    ReLU        -
+  features.2    Conv2d      -
+  features.3    ReLU        -
+  features.4    MaxPool2d   -
+  features.5    Conv2d      -
+  features.6    ReLU        -
+  features.7    Conv2d      -
+  features.8    ReLU        -
+  features.9    MaxPool2d   -
+  features.10   Conv2d      -
+  features.11   ReLU        -
+  features.12   Conv2d      -
+  features.13   ReLU        -
+  features.14   Conv2d      -
+  features.15   ReLU        -
+  features.16   MaxPool2d   -
+  features.17   Conv2d      -
+  features.18   ReLU        -
+  features.19   Conv2d      -
+  features.20   ReLU        -
+  features.21   Conv2d      -
+  features.22   ReLU        -
+  features.23   MaxPool2d   -
+  features.24   Conv2d      -
+  features.25   ReLU        -
+  features.26   Conv2d      -
+  features.27   ReLU        -
+  features.28   Conv2d      -
+  features.29   ReLU        -
+  features.30   MaxPool2d   -

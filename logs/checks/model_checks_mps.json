@@ -1,0 +1,215 @@
+{
+  "vgg16": {
+    "model": "vgg16",
+    "device": "mps",
+    "batch_size": 8,
+    "summary": "Model: vgg16\nmodul         tipe                  output shape                    params     trainable\nfeatures      Sequential            (1, 512, 7, 7)              14,714,688             0\navgpool       AdaptiveAvgPool2d     (1, 512, 7, 7)                       0             0\npre_flatten   Identity              (1, 512, 7, 7)                       0             0\nflatten       Flatten               (1, 25088)                           0             0\nclassifier    Sequential            (1, 1)                       6,423,041     6,423,041\nTOTAL params: 21,137,729 | trainable: 6,423,041 | beku: 14,714,688\nDimensi Flatten: 25,088\nUnit backbone (indeks features.*):\n  features.0    Conv2d      -\n  features.1    ReLU        -\n  features.2    Conv2d      -\n  features.3    ReLU        -\n  features.4    MaxPool2d   -\n  features.5    Conv2d      -\n  features.6    ReLU        -\n  features.7    Conv2d      -\n  features.8    ReLU        -\n  features.9    MaxPool2d   -\n  features.10   Conv2d      -\n  features.11   ReLU        -\n  features.12   Conv2d      -\n  features.13   ReLU        -\n  features.14   Conv2d      -\n  features.15   ReLU        -\n  features.16   MaxPool2d   -\n  features.17   Conv2d      -\n  features.18   ReLU        -\n  features.19   Conv2d      -\n  features.20   ReLU        -\n  features.21   Conv2d      -\n  features.22   ReLU        -\n  features.23   MaxPool2d   -\n  features.24   Conv2d      -\n  features.25   ReLU        -\n  features.26   Conv2d      -\n  features.27   ReLU        -\n  features.28   Conv2d      -\n  features.29   ReLU        -\n  features.30   MaxPool2d   -",
+    "params_total": 21137729,
+    "params_stage_a": {
+      "total": 21137729,
+      "trainable": 6423041,
+      "frozen": 14714688
+    },
+    "batch_source": "gambar asli dari manifest quick (8 gambar, 4 fake)",
+    "forward_output_shape": [
+      8,
+      1
+    ],
+    "forward_prob_fake": [
+      0.5468,
+      0.6235,
+      0.5824,
+      0.5645,
+      0.5438,
+      0.5391,
+      0.5267,
+      0.5339
+    ],
+    "stage_a_loss": 0.6293659210205078,
+    "stage_a": {
+      "changed_params": 4,
+      "head_params": 4,
+      "only_head_changed": true,
+      "all_head_changed": true,
+      "bn_running_stats_changed": 0
+    },
+    "unfreeze": {
+      "policy": "last_n_modules",
+      "n": 10,
+      "unit_count_total": 31,
+      "selected_units": [
+        "features.21 (Conv2d)",
+        "features.22 (ReLU)",
+        "features.23 (MaxPool2d)",
+        "features.24 (Conv2d)",
+        "features.25 (ReLU)",
+        "features.26 (Conv2d)",
+        "features.27 (ReLU)",
+        "features.28 (Conv2d)",
+        "features.29 (ReLU)",
+        "features.30 (MaxPool2d)"
+      ],
+      "weighted_layers_opened": 4,
+      "weighted_layer_types": {
+        "Conv2d": 4
+      },
+      "backbone_params_opened": 9439232
+    },
+    "params_stage_b": {
+      "total": 21137729,
+      "trainable": 15862273,
+      "frozen": 5275456
+    },
+    "stage_b_loss": 0.4941795766353607,
+    "stage_b": {
+      "changed_params": 12,
+      "allowed_params": 12,
+      "backbone_params_changed": 8,
+      "backbone_params_opened": 8,
+      "only_allowed_changed": true,
+      "frozen_backbone_unchanged": true,
+      "bn_running_stats_changed": 0
+    },
+    "checkpoint_roundtrip_max_abs_diff": 0.0,
+    "stage_b_sec_per_step": 0.0581,
+    "stage_b_img_per_sec": 137.7,
+    "mps_allocated_gb": 1.18
+  },
+  "efficientnet_b0": {
+    "model": "efficientnet_b0",
+    "device": "mps",
+    "batch_size": 8,
+    "summary": "Model: efficientnet_b0\nmodul         tipe                  output shape                    params     trainable\nfeatures      Sequential            (1, 1280, 7, 7)              4,007,548             0\navgpool       AdaptiveAvgPool2d     (1, 1280, 1, 1)                      0             0\nclassifier    Sequential            (1, 1)                           1,281         1,281\nTOTAL params: 4,008,829 | trainable: 1,281 | beku: 4,007,548",
+    "params_total": 4008829,
+    "params_stage_a": {
+      "total": 4008829,
+      "trainable": 1281,
+      "frozen": 4007548
+    },
+    "batch_source": "gambar asli dari manifest quick (8 gambar, 4 fake)",
+    "forward_output_shape": [
+      8,
+      1
+    ],
+    "forward_prob_fake": [
+      0.4999,
+      0.4947,
+      0.5668,
+      0.5768,
+      0.5124,
+      0.5676,
+      0.5819,
+      0.5155
+    ],
+    "stage_a_loss": 0.7298887968063354,
+    "stage_a": {
+      "changed_params": 2,
+      "head_params": 2,
+      "only_head_changed": true,
+      "all_head_changed": true,
+      "bn_running_stats_changed": 0
+    },
+    "unfreeze": {
+      "policy": "last_n_modules",
+      "n": 3,
+      "unit_count_total": 9,
+      "selected_units": [
+        "features.6 (Sequential)",
+        "features.7 (Sequential)",
+        "features.8 (Conv2dNormActivation)"
+      ],
+      "weighted_layers_opened": 26,
+      "weighted_layer_types": {
+        "Conv2d": 26
+      },
+      "backbone_params_opened": 3155740
+    },
+    "params_stage_b": {
+      "total": 4008829,
+      "trainable": 3157021,
+      "frozen": 851808
+    },
+    "stage_b_loss": 0.7263342142105103,
+    "stage_b": {
+      "changed_params": 70,
+      "allowed_params": 70,
+      "backbone_params_changed": 68,
+      "backbone_params_opened": 68,
+      "only_allowed_changed": true,
+      "frozen_backbone_unchanged": true,
+      "bn_running_stats_changed": 0
+    },
+    "checkpoint_roundtrip_max_abs_diff": 0.0,
+    "stage_b_sec_per_step": 0.0437,
+    "stage_b_img_per_sec": 183.1,
+    "mps_allocated_gb": 1.29
+  },
+  "maxvit_t": {
+    "model": "maxvit_t",
+    "device": "mps",
+    "batch_size": 8,
+    "summary": "Model: maxvit_t\nmodul         tipe                  output shape                    params     trainable\nstem          Sequential            (1, 64, 112, 112)               38,784             0\nblocks.0      MaxVitBlock           (1, 64, 56, 56)                294,952             0\nblocks.1      MaxVitBlock           (1, 128, 28, 28)             1,114,064             0\nblocks.2      MaxVitBlock           (1, 256, 14, 14)            11,165,456             0\nblocks.3      MaxVitBlock           (1, 512, 7, 7)              17,530,688             0\nclassifier    Sequential            (1, 1)                         264,193       264,193\nTOTAL params: 30,408,137 | trainable: 264,193 | beku: 30,143,944",
+    "params_total": 30408137,
+    "params_stage_a": {
+      "total": 30408137,
+      "trainable": 264193,
+      "frozen": 30143944
+    },
+    "batch_source": "gambar asli dari manifest quick (8 gambar, 4 fake)",
+    "forward_output_shape": [
+      8,
+      1
+    ],
+    "forward_prob_fake": [
+      0.5563,
+      0.504,
+      0.4716,
+      0.4512,
+      0.5651,
+      0.5442,
+      0.5465,
+      0.5908
+    ],
+    "stage_a_loss": 0.7652312517166138,
+    "stage_a": {
+      "changed_params": 6,
+      "head_params": 6,
+      "only_head_changed": true,
+      "all_head_changed": true,
+      "bn_running_stats_changed": 0
+    },
+    "unfreeze": {
+      "policy": "last_n_modules",
+      "n": 1,
+      "unit_count_total": 5,
+      "selected_units": [
+        "blocks.3 (MaxVitBlock)"
+      ],
+      "weighted_layers_opened": 27,
+      "weighted_layer_types": {
+        "Conv2d": 11,
+        "Linear": 16
+      },
+      "backbone_params_opened": 17530688
+    },
+    "params_stage_b": {
+      "total": 30408137,
+      "trainable": 17794881,
+      "frozen": 12613256
+    },
+    "stage_b_loss": 0.7832244634628296,
+    "stage_b": {
+      "changed_params": 88,
+      "allowed_params": 88,
+      "backbone_params_changed": 82,
+      "backbone_params_opened": 82,
+      "only_allowed_changed": true,
+      "frozen_backbone_unchanged": true,
+      "bn_running_stats_changed": 0
+    },
+    "checkpoint_roundtrip_max_abs_diff": 0.0,
+    "stage_b_sec_per_step": 0.0936,
+    "stage_b_img_per_sec": 85.5,
+    "mps_allocated_gb": 1.53
+  }
+}

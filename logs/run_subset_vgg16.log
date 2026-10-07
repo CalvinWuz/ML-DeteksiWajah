@@ -1,0 +1,25 @@
+Data: {'train': '2000 (1000 fake)', 'valid': '1000 (500 fake)', 'test': '20000 (10000 fake)'}
+[A] epoch 1/10 | train loss 0.5915 acc 0.6845 | val loss 0.5720 acc 0.7250 auc 0.8007 | 19.6s  *best*
+[A] epoch 2/10 | train loss 0.4886 acc 0.7655 | val loss 0.5500 acc 0.7190 auc 0.8316 | 14.9s  *best*
+[A] epoch 3/10 | train loss 0.4200 acc 0.8135 | val loss 0.5182 acc 0.7600 auc 0.8439 | 14.9s  *best*
+[A] epoch 4/10 | train loss 0.3738 acc 0.8335 | val loss 0.4832 acc 0.7810 auc 0.856 | 14.9s  *best*
+[A] epoch 5/10 | train loss 0.3321 acc 0.8480 | val loss 0.4647 acc 0.7780 auc 0.8631 | 14.9s  *best*
+[A] epoch 6/10 | train loss 0.2967 acc 0.8725 | val loss 0.4953 acc 0.7680 auc 0.8595 | 15.0s
+[A] epoch 7/10 | train loss 0.2766 acc 0.8855 | val loss 0.4802 acc 0.7740 auc 0.8673 | 15.0s
+[A] epoch 8/10 | train loss 0.2735 acc 0.8795 | val loss 0.4530 acc 0.7930 auc 0.8796 | 15.1s  *best*
+[A] epoch 9/10 | train loss 0.2215 acc 0.9165 | val loss 0.4750 acc 0.8020 auc 0.8843 | 14.9s
+[A] epoch 10/10 | train loss 0.2135 acc 0.9165 | val loss 0.4380 acc 0.8030 auc 0.8888 | 14.9s  *best*
+[eval test] vgg16 tahap A (subset, test): acc 0.8121 | macro-F1 0.8120 | ROC-AUC 0.8905 | n=20000
+[B] epoch 1/10 | train loss 0.4070 acc 0.8250 | val loss 0.4293 acc 0.8010 auc 0.8901 | 19.5s  *best*
+[B] epoch 2/10 | train loss 0.2696 acc 0.8880 | val loss 0.4051 acc 0.8260 auc 0.9132 | 19.3s  *best*
+[B] epoch 3/10 | train loss 0.1670 acc 0.9335 | val loss 0.3792 acc 0.8700 auc 0.9371 | 19.4s  *best*
+[B] epoch 4/10 | train loss 0.1668 acc 0.9360 | val loss 0.4323 acc 0.8400 auc 0.9165 | 19.4s
+[B] epoch 5/10 | train loss 0.1144 acc 0.9560 | val loss 0.6033 acc 0.8220 auc 0.9507 | 19.4s
+[B] epoch 6/10 | train loss 0.1203 acc 0.9590 | val loss 0.4931 acc 0.8270 auc 0.9392 | 19.4s
+[B] epoch 7/10 | train loss 0.0895 acc 0.9655 | val loss 0.5108 acc 0.8580 auc 0.9401 | 19.6s
+[B] epoch 8/10 | train loss 0.0844 acc 0.9730 | val loss 0.7346 acc 0.7970 auc 0.9577 | 19.6s
+[B] epoch 9/10 | train loss 0.0697 acc 0.9770 | val loss 0.3927 acc 0.8860 auc 0.9627 | 19.7s
+[B] epoch 10/10 | train loss 0.0471 acc 0.9860 | val loss 0.7320 acc 0.8060 auc 0.9621 | 19.9s
+[eval test] vgg16 tahap B (subset, test): acc 0.8708 | macro-F1 0.8704 | ROC-AUC 0.9453 | n=20000
+Selesai 21:27:04. Kurva: outputs/subset/vgg16/curves.png
+EXIT vgg16 

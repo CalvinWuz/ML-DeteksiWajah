@@ -1,0 +1,54 @@
+# Konfigurasi bersama untuk semua model.
+#
+# Pemetaan label INTERNAL (dipakai di seluruh proyek, checkpoint, dan hasil):
+#   real = 0, fake = 1. Kelas positif untuk ROC/AUC = fake.
+# Label dari sumber data selalu di-remap ke pemetaan ini oleh scripts/prepare_data.py.
+
+seed: 42
+
+data:
+  source: "kaggle:xhlulu/140k-real-and-fake-faces"
+  raw_dir: data/raw/140k-real-and-fake-faces   # tempat dataset diekstrak
+  manifest_dir: data/manifests                 # manifest CSV hasil prepare_data.py
+  class_names: [real, fake]                    # indeks 0 = real, 1 = fake
+  num_workers: 4                               # proses pembaca gambar (DataLoader)
+
+# Tiga mode yang dipilih secara eksplisit dengan --mode.
+# null = pakai seluruh split.
+modes:
+  quick:            # PEMERIKSAAN CEPAT: hanya membuktikan kode tersambung, bukan hasil penelitian
+    train_per_class: 32
+    val_per_class: 16
+    test_per_class: 16
+    epochs_a: 1
+    epochs_b: 1
+  subset:           # LATIHAN SUBSET (usulan brief): 1000 real + 1000 fake dari split train
+    train_per_class: 1000
+    val_per_class: 500       # usulan: validation diperkecil agar tiap epoch cepat
+    test_per_class: null     # test tetap seluruh split test
+    epochs_a: 10
+    epochs_b: 10
+  full:             # EKSPERIMEN PENUH: seluruh split
+    train_per_class: null
+    val_per_class: null
+    test_per_class: null
+    epochs_a: 10    # "Pre train: 10 gpp" -> ditafsirkan 10 epoch (BELUM dikonfirmasi)
+    epochs_b: 10    # usulan; jumlah epoch fine-tuning belum diberikan
+
+train:
+  batch_size: 8             # mulai kecil; naikkan bila memori cukup (--batch-size)
+  eval_batch_size: 32
+  optimizer: adam
+  default_lr: 1.0e-3        # learning rate default Adam di PyTorch
+  lr_factor: 0.1            # catatan: "learning rate 10% dari default"
+  lr_stage_a: null          # null = default_lr * lr_factor = 1e-4
+  lr_stage_b: null          # null = default_lr * lr_factor = 1e-4 (1e-5 hanya opsi, belum disepakati)
+  weight_decay: 0.0
+  scheduler: none           # tidak ada scheduler; lr aktual tetap dicatat per epoch
+  early_stopping_patience: null   # null = tanpa early stopping
+  checkpoint_metric: val_loss     # best.pt = epoch dengan val_loss terendah
+  threshold: 0.5            # ambang keputusan fake jika prob_fake >= threshold (tidak dituning di test)
+  # Perlakuan BatchNorm (tidak berpengaruh pada VGG16 yang tidak punya BatchNorm):
+  #   eval           = semua BatchNorm selalu mode eval (statistik running tidak berubah)
+  #   train_unfrozen = BatchNorm di blok yang dibuka ikut mode train
+  batchnorm: eval

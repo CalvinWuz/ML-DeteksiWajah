@@ -1,0 +1,25 @@
+Data: {'train': '2000 (1000 fake)', 'valid': '1000 (500 fake)', 'test': '20000 (10000 fake)'}
+[A] epoch 1/10 | train loss 0.6740 acc 0.5875 | val loss 0.6538 acc 0.6410 auc 0.6994 | 11.8s  *best*
+[A] epoch 2/10 | train loss 0.6303 acc 0.6800 | val loss 0.6298 acc 0.6650 auc 0.7335 | 7.0s  *best*
+[A] epoch 3/10 | train loss 0.6023 acc 0.6985 | val loss 0.6140 acc 0.6790 auc 0.7469 | 6.9s  *best*
+[A] epoch 4/10 | train loss 0.5845 acc 0.7015 | val loss 0.6014 acc 0.6800 auc 0.7598 | 6.9s  *best*
+[A] epoch 5/10 | train loss 0.5709 acc 0.7245 | val loss 0.5912 acc 0.6890 auc 0.7691 | 7.0s  *best*
+[A] epoch 6/10 | train loss 0.5576 acc 0.7310 | val loss 0.5824 acc 0.6930 auc 0.7775 | 7.0s  *best*
+[A] epoch 7/10 | train loss 0.5455 acc 0.7300 | val loss 0.5745 acc 0.6940 auc 0.7853 | 7.1s  *best*
+[A] epoch 8/10 | train loss 0.5326 acc 0.7525 | val loss 0.5678 acc 0.7050 auc 0.7916 | 6.9s  *best*
+[A] epoch 9/10 | train loss 0.5256 acc 0.7385 | val loss 0.5629 acc 0.7060 auc 0.7956 | 7.0s  *best*
+[A] epoch 10/10 | train loss 0.5191 acc 0.7670 | val loss 0.5564 acc 0.7080 auc 0.8012 | 6.9s  *best*
+[eval test] efficientnet_b0 tahap A (subset, test): acc 0.7301 | macro-F1 0.7299 | ROC-AUC 0.8082 | n=20000
+[B] epoch 1/10 | train loss 0.5111 acc 0.7515 | val loss 0.4499 acc 0.7890 auc 0.8919 | 13.7s  *best*
+[B] epoch 2/10 | train loss 0.3444 acc 0.8475 | val loss 0.4236 acc 0.7980 auc 0.9241 | 13.1s  *best*
+[B] epoch 3/10 | train loss 0.2939 acc 0.8785 | val loss 0.4077 acc 0.8070 auc 0.9393 | 13.2s  *best*
+[B] epoch 4/10 | train loss 0.1632 acc 0.9400 | val loss 0.3207 acc 0.8690 auc 0.9577 | 12.8s  *best*
+[B] epoch 5/10 | train loss 0.1465 acc 0.9420 | val loss 0.3479 acc 0.8520 auc 0.9653 | 13.2s
+[B] epoch 6/10 | train loss 0.1348 acc 0.9505 | val loss 0.3003 acc 0.8810 auc 0.9529 | 13.2s  *best*
+[B] epoch 7/10 | train loss 0.0944 acc 0.9600 | val loss 0.2909 acc 0.8910 auc 0.961 | 13.0s  *best*
+[B] epoch 8/10 | train loss 0.0678 acc 0.9785 | val loss 0.4334 acc 0.8620 auc 0.9625 | 13.1s
+[B] epoch 9/10 | train loss 0.0855 acc 0.9635 | val loss 0.3045 acc 0.8950 auc 0.9649 | 13.0s
+[B] epoch 10/10 | train loss 0.0436 acc 0.9865 | val loss 0.4732 acc 0.8570 auc 0.9649 | 13.1s
+[eval test] efficientnet_b0 tahap B (subset, test): acc 0.8859 | macro-F1 0.8857 | ROC-AUC 0.9603 | n=20000
+Selesai 21:32:55. Kurva: outputs/subset/efficientnet_b0/curves.png
+EXIT efficientnet_b0 

@@ -1,0 +1,6 @@
+Model: efficientnet_b0
+modul         tipe                  output shape                    params     trainable
+features      Sequential            (1, 1280, 7, 7)              4,007,548             0
+avgpool       AdaptiveAvgPool2d     (1, 1280, 1, 1)                      0             0
+classifier    Sequential            (1, 1)                           1,281         1,281
+TOTAL params: 4,008,829 | trainable: 1,281 | beku: 4,007,548

@@ -1,0 +1,15 @@
+# VGG16 standar (Simonyan & Zisserman, 2014), bobot ImageNet dari torchvision.
+model:
+  name: vgg16
+  weights: IMAGENET1K_V1
+  head:
+    # Titik konfigurasi untuk "tambahan sebelum Flatten" yang jenisnya BELUM diketahui.
+    # Saat ini hanya "none". Jangan isi dengan layer karangan; tambahkan setelah diperjelas.
+    pre_flatten: none
+    hidden_units: 256       # usulan: Dense/Linear tambahan
+    dropout: 0.5            # usulan
+  unfreeze:
+    # last_n_modules  = N modul terakhir backbone (termasuk ReLU/MaxPool yang tidak berbobot)
+    # last_n_weighted = N layer convolution terakhir
+    policy: last_n_modules
+    n: 10

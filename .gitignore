@@ -1,0 +1,11 @@
+# dataset, environment, dan hasil besar tidak masuk version control
+.venv/
+data/raw/
+data/manifests/*.csv
+outputs/
+*.pt
+*.zip
+__pycache__/
+.ipynb_checkpoints/
+.DS_Store
+hasil_*.csv

@@ -1,0 +1,5 @@
+Data: {'train': '64 (32 fake)', 'valid': '32 (16 fake)', 'test': '32 (16 fake)'}
+[A] epoch 1/1 | train loss 0.7111 acc 0.5469 | val loss 0.6315 acc 0.6250 auc 0.7148 | 5.4s  *best*
+[eval test] vgg16 tahap A (quick, test): acc 0.7188 | macro-F1 0.7185 | ROC-AUC 0.832 | n=32
+[B] epoch 1/1 | train loss 0.5017 acc 0.7500 | val loss 0.7360 acc 0.5312 auc 0.7109 | 0.8s  *best*
+[eval test] vgg16 tahap B (quick, test): acc 0.6250 | macro-F1 0.5844 | ROC-AUC 0.8438 | n=32

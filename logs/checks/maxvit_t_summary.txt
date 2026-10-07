@@ -1,0 +1,9 @@
+Model: maxvit_t
+modul         tipe                  output shape                    params     trainable
+stem          Sequential            (1, 64, 112, 112)               38,784             0
+blocks.0      MaxVitBlock           (1, 64, 56, 56)                294,952             0
+blocks.1      MaxVitBlock           (1, 128, 28, 28)             1,114,064             0
+blocks.2      MaxVitBlock           (1, 256, 14, 14)            11,165,456             0
+blocks.3      MaxVitBlock           (1, 512, 7, 7)              17,530,688             0
+classifier    Sequential            (1, 1)                         264,193       264,193
+TOTAL params: 30,408,137 | trainable: 264,193 | beku: 30,143,944

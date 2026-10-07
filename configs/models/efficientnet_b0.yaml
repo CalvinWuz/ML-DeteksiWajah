@@ -1,0 +1,13 @@
+# EfficientNet-B0 (Tan & Le, 2019), bobot ImageNet dari torchvision. Varian B0 = usulan.
+# Head mengikuti classifier bawaan torchvision: global avg pool -> Dropout(0.2) -> Linear,
+# hanya output Linear diganti menjadi 1 logit.
+model:
+  name: efficientnet_b0
+  weights: IMAGENET1K_V1
+  head:
+    dropout: 0.2
+  unfreeze:
+    # backbone.features punya 9 blok: [0] stem, [1..7] stage MBConv, [8] conv 1x1 akhir.
+    # n: 3 -> buka features[6], features[7], features[8] (usulan perluasan rancangan).
+    policy: last_n_modules
+    n: 3
